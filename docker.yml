@@ -1,0 +1,48 @@
+- hosts: all
+  tasks:
+          - name: "configuring yum repository"
+            yum_repository:
+                    baseurl: https://download.docker.com/linux/centos/7/x86_64/stable/
+                    name: docker
+                    gpgcheck: no
+                    description: hello
+                    file: docker
+
+          - name: "installing docker software"
+            command: "yum install docker-ce --nobest -y"
+                 
+          - name: "installing extra packages"
+            pip: 
+              name: docker
+
+          - name: "starting docker services"
+            service:
+                    name: docker
+                    state: started
+                    enabled: yes
+          - name: "pulling httpd image"
+            docker_image:
+                   name: centos/httpd-24-centos7
+                   source: pull
+
+          - name: "creating folder"
+            file:
+             path: "/doc"
+             state: directory
+
+          - name: "copying page"
+            copy:
+               src: "index.html"
+               dest: "/doc"
+
+          - name: " run docker container"
+            docker_container:
+                   name: "my-container"
+                   state: started
+                   image: centos/httpd-24-centos7
+                   exposed_ports: "8080"
+                   ports: "8081:8080"          
+                   volumes: "/doc:/var/www/html/"  
+                    
+  
+        
